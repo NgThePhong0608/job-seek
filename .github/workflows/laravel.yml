@@ -15,29 +15,24 @@ jobs:
     - uses: shivammathur/setup-php@15c43e89cdef867065b0213be354c2841860869e
       with:
         php-version: '8.0'
-    - uses: actions/checkout@v4
+    - name: Check out code
+      uses: actions/checkout@v3
+    - name: Install dependencies
+      run: composer install --no-interaction --prefer-dist
     - name: Download PHP_CodeSniffer phars
       run: |
-        curl -sSLo phpcs.phar https://squizlabs.github.io/PHP_CodeSniffer/phpcs.phar
-        curl -sSLo phpcbf.phar https://squizlabs.github.io/PHP_CodeSniffer/phpcbf.phar
+        curl -sSL https://squizlabs.github.io/PHP_CodeSniffer/phpcs.phar -o phpcs.phar
+        curl -sSL https://squizlabs.github.io/PHP_CodeSniffer/phpcbf.phar -o phpcbf.phar
         chmod +x phpcs.phar phpcbf.phar
-        sudo mv phpcs.phar /usr/local/bin/phpcs
-        sudo mv phpcbf.phar /usr/local/bin/phpcbf
-
-    - name: Check code style with PHPCS
+    - name: Run PHPCS
       run: |
-        phpcs \
-          --standard=PSR12 \
-          --extensions=php \
-          --ignore=vendor/ \
-          .
-    - name: Auto-fix code style with PHPCBF
+        ./phpcs.phar --standard=PSR12 --extensions=php -n app/
+    - name: Auto-fix with PHPCBF
       run: |
-        phpcbf \
-          --standard=PSR12 \
-          --extensions=php \
-          --ignore=vendor/ \
-          .
+        ./phpcbf.phar --standard=PSR12 --extensions=php -n app/
+    - name: Re-run PHPCS to ensure clean
+      run: |
+        ./phpcs.phar --standard=PSR12 --extensions=php -n app/
     - name: Copy .env
       run: php -r "file_exists('.env') || copy('.env.example', '.env');"
     - name: Install Dependencies
