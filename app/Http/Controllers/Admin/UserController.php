@@ -103,7 +103,7 @@ class UserController extends Controller
     {
         $user = User::findOrFail($request->id);
 
-        if ($user == NULL) {
+        if ($user == null) {
             $message = 'User not found!';
             session()->flash('error', $message);
 

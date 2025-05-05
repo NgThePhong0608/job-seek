@@ -50,7 +50,6 @@ class JobsController extends Controller
 
         // experience filter
         if (!empty($request->experience)) {
-
             $jobs = $jobs->where('experience', $request->experience);
         }
 
@@ -84,7 +83,8 @@ class JobsController extends Controller
             ]
         )->with(
             [
-                'jobType', 'jobCategory'
+                'jobType',
+                'jobCategory'
             ]
         )->first();
 
@@ -120,7 +120,7 @@ class JobsController extends Controller
         $id = $request->id;
         $job = Job::where('id', $id)->first();
 
-        if ($job == NULL) {
+        if ($job == null) {
             $message = 'Job does not exist';
 
             session()->flash('error', $message);
@@ -199,7 +199,7 @@ class JobsController extends Controller
         $id = $request->id;
         $job = Job::find($id);
 
-        if ($job == NULL) {
+        if ($job == null) {
             $message = 'Job does not exist';
 
             session()->flash('error', $message);

@@ -39,7 +39,8 @@
             <div class="card-footer text-muted">
                 <p class="card-text">If you're having trouble with the button above, copy and paste the URL below
                     into your web browser.</p>
-                <p class="card-text"><a href="javascript:void(0);" class="link-offset-3">{{ $mailData['actionUrl'] }}</a></p>
+                <p class="card-text"><a href="javascript:void(0);"
+                        class="link-offset-3">{{ $mailData['actionUrl'] }}</a></p>
             </div>
         </div>
 
