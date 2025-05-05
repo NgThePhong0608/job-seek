@@ -42,6 +42,7 @@ jobs:
     - name: Directory Permissions
       run: chmod -R 777 storage bootstrap/cache
   deploy:
+    needs: laravel-ci
     name: 🚀 Deploy to EC2
     runs-on: ubuntu-latest
     if: github.ref == 'refs/heads/main' && github.event_name == 'push'
@@ -56,13 +57,14 @@ jobs:
         run: |
           rsync -az --delete \
             --omit-dir-times \
+            --no-perms \
+            --no-owner \
+            --no-group \
             -e "ssh -o StrictHostKeyChecking=no -p ${EC2_SSH_PORT:-22}" \
             --exclude '.git*' \
             --exclude 'vendor/' \
             --exclude '.env' \
             ./ ${{ secrets.EC2_USER }}@${{ secrets.EC2_HOST }}:/var/www/job-seek/
-
-
       - name: Run remote deploy commands
         uses: appleboy/ssh-action@v0.1.7
         with:
