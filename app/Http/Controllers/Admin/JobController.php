@@ -31,7 +31,7 @@ class JobController extends Controller
     {
         $job = Job::findOrFail($id);
 
-        if ($job == NULL) {
+        if ($job == null) {
             $message = 'Job not found!';
             session()->flash('error', $message);
 
@@ -113,7 +113,7 @@ class JobController extends Controller
         $id = $request->id;
         $job = Job::find($id);
 
-        if ($job == NULL) {
+        if ($job == null) {
             $message = 'Job not found!';
             session()->flash('error', $message);
 

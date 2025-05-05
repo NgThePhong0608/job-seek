@@ -25,7 +25,7 @@ class JobApplicationController extends Controller
         $id = $request->id;
         $jobApplication = JobApplication::find($id);
 
-        if ($jobApplication == NULL) {
+        if ($jobApplication == null) {
             $message = 'Either job application was deleted or you are not authorized to delete this job application!';
 
             session()->flash('error', $message);
