@@ -189,7 +189,9 @@ class AccountController extends Controller
 
     public function myJobs()
     {
-        $jobs = Job::where('user_id', Auth::user()->id)->with(['jobType', 'applications'])->orderBy('created_at', 'DESC')->paginate(10);
+        $jobs = Job::where('user_id', Auth::user()->id)
+            ->with(['jobType', 'applications'])
+            ->orderBy('created_at', 'DESC')->paginate(10);
 
         return view(
             'front.account.job.my-jobs',
@@ -207,7 +209,7 @@ class AccountController extends Controller
             'id' => $id,
         ])->first();
 
-        abort_if($job == NULL, 404);
+        abort_if($job == null, 404);
 
         return view(
             'front.account.job.edit',
@@ -278,7 +280,7 @@ class AccountController extends Controller
             'id' => $request->id,
         ])->first();
 
-        if ($job == NULL) {
+        if ($job == null) {
             $message = 'Either job was deleted or you are not authorized to delete this job!';
 
             session()->flash('error', $message);
@@ -307,7 +309,7 @@ class AccountController extends Controller
             'user_id' => Auth::user()->id,
         ])->first();
 
-        if ($jobApplication == NULL) {
+        if ($jobApplication == null) {
             $message = 'Either job application was removed or you are not authorized to remove this job!';
 
             session()->flash('error', $message);
@@ -336,7 +338,7 @@ class AccountController extends Controller
             'user_id' => Auth::user()->id,
         ])->first();
 
-        if ($savedJob == NULL) {
+        if ($savedJob == null) {
             $message = 'Either job application was removed or you are not authorized to remove this job!';
 
             session()->flash('error', $message);

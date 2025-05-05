@@ -80,7 +80,7 @@ class AuthController extends Controller
             return redirect()
                 ->route('account.verification', $userData->id)
                 ->with('error', 'Please verify your email address!');
-        } else if ($validator->passes()) {
+        } elseif ($validator->passes()) {
             // if the form data is valid then attempt to login the user
             if (Auth::attempt($userCredential)) {
                 return redirect()->route('account.profile.show');
@@ -182,7 +182,7 @@ class AuthController extends Controller
     {
         $token = DB::table('password_reset_tokens')->where('token', $tokenString)->first();
 
-        if ($token == NULL) {
+        if ($token == null) {
             return redirect()
                 ->route('account.forgot.password')
                 ->with('error', 'Invalid password reset token!');
@@ -197,7 +197,7 @@ class AuthController extends Controller
             ->where('token', $request->token)
             ->first();
 
-        if ($token == NULL) {
+        if ($token == null) {
             return redirect()
                 ->route('account.forgot.password')
                 ->with('error', 'Invalid password reset token!');

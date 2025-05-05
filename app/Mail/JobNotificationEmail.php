@@ -11,7 +11,8 @@ use Illuminate\Queue\SerializesModels;
 
 class JobNotificationEmail extends Mailable
 {
-    use Queueable, SerializesModels;
+    use Queueable;
+    use SerializesModels;
 
     public $mailData;
 

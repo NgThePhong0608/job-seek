@@ -55,7 +55,7 @@ class CategoryController extends Controller
         $id = $request->id;
         $category = Category::find($id);
 
-        if ($category == NULL) {
+        if ($category == null) {
             $message = 'Either category was deleted or you are not authorized to delete this category!';
 
             session()->flash('error', $message);
@@ -82,7 +82,7 @@ class CategoryController extends Controller
         $id = $request->id;
         $category = Category::find($id);
 
-        if ($category == NULL) {
+        if ($category == null) {
             $message = 'Either category was deleted or you are not authorized to change status of this category!';
 
             session()->flash('error', $message);
