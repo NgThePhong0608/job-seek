@@ -47,10 +47,15 @@ jobs:
     if: github.ref == 'refs/heads/main' && github.event_name == 'push'
     steps:
       - uses: actions/checkout@v4
+      - name: Setup SSH agent
+        uses: webfactory/ssh-agent@v0.5.4
+        with:
+          ssh-private-key: ${{ secrets.EC2_SSH_KEY }}
+          
       - name: Sync code to EC2 via rsync
         run: |
           rsync -avz --delete \
-            -e "ssh -o StrictHostKeyChecking=no -p ${EC2_SSH_PORT:-22} -i ${{ secrets.EC2_SSH_KEY }}" \
+            -e "ssh -o StrictHostKeyChecking=no -p ${EC2_SSH_PORT:-22}" \
             --exclude '.git*' \
             --exclude 'vendor/' \
             --exclude '.env' \
