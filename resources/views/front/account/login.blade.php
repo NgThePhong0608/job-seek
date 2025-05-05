@@ -2,7 +2,7 @@
 
 @section('content')
     <section class="section-5">
-        <div class="container my-5">
+        <div class="container my-5" style="height: 74vh;">
             <div class="py-lg-2">&nbsp;</div>
             @include('front.account.shared.message')
             <div class="row d-flex justify-content-center">
@@ -12,7 +12,7 @@
                         <form action="{{ route('account.auth') }}" method="post">
                             @csrf
                             <div class="mb-3">
-                                <label for="email" class="mb-2">Email*</label>
+                                <label for="email" class="mb-2">Email<span class="text-danger">*</span></label>
                                 <input type="email" value="{{ old('email') }}" name="email" id="email"
                                     class="form-control @error('email') is-invalid @enderror" placeholder="Enter Email">
 
@@ -21,7 +21,7 @@
                                 @enderror
                             </div>
                             <div class="mb-3">
-                                <label for="password" class="mb-2">Password*</label>
+                                <label for="password" class="mb-2">Password<span class="text-danger">*</span></label>
                                 <input type="password" name="password" id="password"
                                     class="form-control @error('email') is-invalid @enderror" placeholder="Enter Password">
 
@@ -29,10 +29,11 @@
                                     <p class="invalid-feedback">{{ $message }}</p>
                                 @enderror
                             </div>
-                            <div class="justify-content-between d-flex">
+                            <div class="d-flex justify-content-center">
                                 <button class="btn btn-primary mt-2">Login</button>
-                                <a href="{{ route('account.forgot.password') }}" class="mt-3">Forgot Password?</a>
                             </div>
+                            <a href="{{ route('account.forgot.password') }}" class="mt-3 d-flex justify-content-end">Forgot
+                                Password?</a>
                         </form>
                     </div>
                     <div class="mt-4 text-center">

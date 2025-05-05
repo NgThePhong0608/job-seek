@@ -83,12 +83,14 @@
                             <div class="border-bottom"></div>
                             <div class="pt-3 text-end">
                                 @auth
-                                    <a href="#" onclick="saveJob({{ $job->id }})" class="btn btn-secondary">Save</a>
-                                    <a href="#" onclick="applyJob({{ $job->id }})" class="btn btn-primary">Apply</a>
+                                    <a href="#" onclick="saveJob({{ $job->id }})"
+                                        class="btn btn-secondary {{ $isApplied ? 'disabled' : '' }}">Save</a>
+                                    <a href="#" onclick="applyJob({{ $job->id }})"
+                                        class="btn btn-primary {{ $isApplied ? 'disabled' : '' }}">Apply</a>
                                 @endauth
                                 @guest
-                                    <a href="javascript:void(0);" class="btn btn-primary">Login to Save</a>
-                                    <a href="javascript:void(0);" class="btn btn-primary">Login to Apply</a>
+                                    <a href="{{ route('account.login.index') }}" class="btn btn-primary">Login to Save</a>
+                                    <a href="{{ route('account.login.index') }}" class="btn btn-primary">Login to Apply</a>
                                 @endguest
                             </div>
                         </div>

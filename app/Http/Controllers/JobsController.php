@@ -99,7 +99,7 @@ class JobsController extends Controller
         }
 
         $applications = JobApplication::where('job_id', $id)->with('user')->get();
-
+        $isApplied = JobApplication::where('job_id', $id)->where('user_id', Auth::user()->id)->exists();
         if (!$job) {
             return redirect()->route('jobs');
         }
@@ -110,6 +110,7 @@ class JobsController extends Controller
                 'job',
                 'applications',
                 'savedJobCount',
+                'isApplied'
             )
         );
     }

@@ -7,33 +7,36 @@
             <div class="row d-flex justify-content-center">
                 <div class="col-md-5">
                     <div class="card shadow border-0 p-5">
-                        <h1 class="h3">Register</h1>
+                        <h1 class="h3 text-center">Register</h1>
                         <form action="" name="registration-form" id="registration-form" autocomplete="on">
                             <div class="mb-3">
-                                <label for="name" class="mb-2">Name*</label>
+                                <label for="name" class="mb-2">Name<span class="text-danger">*</span></label>
                                 <input type="text" name="name" id="name" class="form-control"
                                     placeholder="Enter Name" autocomplete="on">
                                 <p></p>
                             </div>
                             <div class="mb-3">
-                                <label for="email" class="mb-2">Email*</label>
+                                <label for="email" class="mb-2">Email<span class="text-danger">*</span></label>
                                 <input type="text" name="email" id="email" class="form-control"
                                     placeholder="Enter Email" autocomplete="on">
                                 <p></p>
                             </div>
                             <div class="mb-3">
-                                <label for="password" class="mb-2">Password*</label>
+                                <label for="password" class="mb-2">Password<span class="text-danger">*</span></label>
                                 <input type="password" name="password" id="password" class="form-control"
                                     placeholder="Enter Password">
                                 <p></p>
                             </div>
                             <div class="mb-3">
-                                <label for="confirm_password" class="mb-2">Confirm Password*</label>
+                                <label for="confirm_password" class="mb-2">Confirm Password<span
+                                        class="text-danger">*</span></label>
                                 <input type="password" name="confirm_password" id="confirm_password" class="form-control"
                                     placeholder="Confirm Password">
                                 <p></p>
                             </div>
-                            <button class="btn btn-primary mt-2">Register</button>
+                            <div class="d-flex justify-content-center">
+                                <button class="btn btn-primary mt-2">Register</button>
+                            </div>
                         </form>
                     </div>
                     <div class="mt-4 text-center">

@@ -8,7 +8,7 @@
                 <div class="col-12 col-xl-8">
                     <h1>Find your dream job</h1>
                     <p>Thounsands of jobs available.</p>
-                    <div class="banner-btn mt-5"><a href="#" class="btn btn-primary mb-4 mb-sm-0">Explore Now</a>
+                    <div class="banner-btn mt-5"><a href="{{ route('jobs') }}" class="btn btn-primary mb-4 mb-sm-0">Explore Now</a>
                     </div>
                 </div>
             </div>
@@ -82,9 +82,9 @@
                         <div class="row">
                             @if ($featuredJobs->isNotEmpty())
                                 @foreach ($featuredJobs as $featuredJob)
-                                    <div class="col-md-4">
-                                        <div class="card border-0 p-3 shadow mb-4">
-                                            <div class="card-body">
+                                    <div class="col-md-4 mb-4">
+                                        <div class="card border-0 p-3 shadow h-100">
+                                            <div class="card-body d-flex flex-column">
                                                 <h3 class="border-0 fs-5 pb-2 mb-0">{{ $featuredJob->title }}</h3>
                                                 <p>{{ Str::words(strip_tags($featuredJob->description), 5) }}</p>
                                                 <div class="bg-light p-3 border">
@@ -130,11 +130,12 @@
                         <div class="row">
                             @if ($latestJobs->isNotEmpty())
                                 @foreach ($latestJobs as $latestJob)
-                                    <div class="col-md-4">
-                                        <div class="card border-0 p-3 shadow mb-4">
-                                            <div class="card-body">
+                                    <div class="col-md-4 mb-4">
+                                        <div class="card border-0 p-3 shadow h-100">
+                                            <div class="card-body d-flex flex-column">
                                                 <h3 class="border-0 fs-5 pb-2 mb-0">{{ $latestJob->title }}</h3>
-                                                <p>{{ Str::words(strip_tags($latestJob->description), 15) }}</p>
+                                                <p class="flex-grow-1" style="height: 80px; overflow: hidden;">
+                                                    {{ Str::words(strip_tags($latestJob->description), 15) }}</p>
                                                 <div class="bg-light p-3 border">
                                                     <p class="mb-0">
                                                         <span class="fw-bolder"><i class="fa fa-map-marker"></i></span>

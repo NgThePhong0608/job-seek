@@ -2,7 +2,7 @@
 
 @section('content')
     <section class="section-5">
-        <div class="container my-5">
+        <div class="container my-5" style="height: 74vh;">
             <div class="py-lg-2">&nbsp;</div>
             @include('front.account.shared.message')
             <div class="row d-flex justify-content-center">
@@ -20,7 +20,7 @@
                                     <p class="invalid-feedback">{{ $message }}</p>
                                 @enderror
                             </div>
-                            <div class="justify-content-between d-flex">
+                            <div class="d-flex justify-content-center">
                                 <button class="btn btn-primary mt-2">Send password reset link</button>
                             </div>
                         </form>

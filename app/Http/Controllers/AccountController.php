@@ -69,12 +69,25 @@ class AccountController extends Controller
         ]);
 
         if ($validator->passes()) {
+            // Make sure directories exist
+            $publicProfileDir = public_path('profile_picture');
+            $storageProfileDir = public_path('profile_picture/thumbnail');
+
+            // Create directories if they don't exist
+            if (!File::isDirectory($publicProfileDir)) {
+                File::makeDirectory($publicProfileDir, 0755, true);
+            }
+
+            if (!File::isDirectory($storageProfileDir)) {
+                File::makeDirectory($storageProfileDir, 0755, true);
+            }
+
             $image = $request->image;
             $extension = $image->getClientOriginalExtension();
             $imageFileName = $id . '-' . time() . '.' . $extension;
-            $image->move(public_path('/profile_picture'), $imageFileName);
+            $image->move($publicProfileDir, $imageFileName);
 
-            $sourcePath = public_path('/profile_picture/' . $imageFileName);
+            $sourcePath = $publicProfileDir . '/' . $imageFileName;
 
             // create new image instance
             $manager = new ImageManager(Driver::class);
@@ -82,11 +95,13 @@ class AccountController extends Controller
 
             // crop the best fitting 1:1 (200, 200) ratio and resize to 200, 200 pixel
             $image->cover(200, 200);
-            $image->toPng()->save(public_path('/profile_picture/thumbnail/' . $imageFileName));
+            $image->toPng()->save($storageProfileDir . '/' . $imageFileName);
 
             // delete old image and thumbnail
-            File::delete(public_path('/profile_picture/' . Auth::user()->image));
-            File::delete(public_path('/profile_picture/thumbnail' . Auth::user()->image));
+            if (Auth::user()->image) {
+                File::delete($publicProfileDir . '/' . Auth::user()->image);
+                File::delete($storageProfileDir . '/' . Auth::user()->image);
+            }
 
             User::where('id', $id)->update([
                 'image' => $imageFileName,

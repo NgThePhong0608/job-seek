@@ -32,7 +32,7 @@
                                     <p class="invalid-feedback">{{ $message }}</p>
                                 @enderror
                             </div>
-                            <div class="justify-content-between d-flex">
+                            <div class="d-flex justify-content-between">
                                 <button type="submit" class="btn btn-primary mt-2">Reset Password</button>
                             </div>
                         </form>
