@@ -51,7 +51,7 @@ jobs:
             chmod +x phpcs.phar
           fi
           ./phpcs.phar --standard=PSR12 --extensions=php -n app/
-          ./phpcs.phar --standard=PSR12 --extensions=php -n app/ --no-colors --report=summary --fix
+          ./phpcs.phar --standard=PSR12 --extensions=php -n app/ --no-colors --report=summary
 
   deploy:
     name: 🚀 Deploy to EC2
