@@ -75,10 +75,7 @@ jobs:
             --omit-dir-times --no-perms --no-owner --no-group \
             -e "ssh -o StrictHostKeyChecking=no -p ${EC2_SSH_PORT:-22}" \
             --exclude '.git*' --exclude 'vendor/' --exclude '.env' \
-            ./ ${{ secrets.EC2_USER }}@${{ secrets.EC2_HOST }}:~/temp-deploy/
-          ssh -o StrictHostKeyChecking=no -p ${EC2_SSH_PORT:-22} \
-            ${{ secrets.EC2_USER }}@${{ secrets.EC2_HOST }} \
-            "sudo rsync -a --delete ~/temp-deploy/ /var/www/job-seek/"
+            ./ ${{ secrets.EC2_USER }}@${{ secrets.EC2_HOST }}:~/var/www/job-seek/
 
       # 3. Chạy lệnh deploy trên host
       - name: Execute remote deploy
