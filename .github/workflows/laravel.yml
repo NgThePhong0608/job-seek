@@ -93,7 +93,7 @@ jobs:
           script: |
             cd /var/www/job-seek
 
-            composer install --no-dev --optimize-autoloader
+            composer install --optimize-autoloader
 
             # Apply migrations & cache
             php artisan migrate --force
