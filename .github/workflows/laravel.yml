@@ -71,11 +71,12 @@ jobs:
       # 2. Sync code (ngoại trừ vendor, .env)
       - name: Rsync to EC2
         run: |
-          rsync -az --delete \
-            --omit-dir-times --no-perms --no-owner --no-group \
-            -e "ssh -o StrictHostKeyChecking=no -p ${EC2_SSH_PORT:-22}" \
-            --exclude '.git*' --exclude 'vendor/' --exclude '.env' \
-            ./ ${{ secrets.EC2_USER }}@${{ secrets.EC2_HOST }}:~/var/www/job-seek/
+          # rsync -az --delete \
+          #   --omit-dir-times --no-perms --no-owner --no-group \
+          #   -e "ssh -o StrictHostKeyChecking=no -p ${EC2_SSH_PORT:-22}" \
+          #   --exclude '.git*' --exclude 'vendor/' --exclude '.env' \
+          #   ./ ${{ secrets.EC2_USER }}@${{ secrets.EC2_HOST }}:~/var/www/job-seek/
+          rsync --progress -avzh --exclude='.git' --exclude 'vendor/' -e "ssh -i ~/.ssh/id_rsa " --rsync-path="sudo rsync" . ${{ secrets.EC2_USER }}@${{ secrets.EC2_HOST }}:/var/www/job-seek/
 
       # 3. Chạy lệnh deploy trên host
       - name: Execute remote deploy
