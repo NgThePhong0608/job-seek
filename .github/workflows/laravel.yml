@@ -61,14 +61,11 @@ jobs:
 
     steps:
       - uses: actions/checkout@v4
-
-      # 1. SSH setup
       - name: Setup SSH Key
         uses: webfactory/ssh-agent@v0.5.4
         with:
           ssh-private-key: ${{ secrets.EC2_SSH_KEY }}
 
-      # 2. Sync code (ngoại trừ vendor, .env)
       - name: Rsync to EC2
         run: |
           mkdir -p ~/.ssh
@@ -82,7 +79,6 @@ jobs:
           #   ./ ${{ secrets.EC2_USER }}@${{ secrets.EC2_HOST }}:~/var/www/job-seek/
           rsync --chown=ubuntu:ubuntu --progress -avzh --exclude='.git' --exclude 'vendor/' -e "ssh -i ~/.ssh/id_rsa " --rsync-path="sudo rsync" . ${{ secrets.EC2_USER }}@${{ secrets.EC2_HOST }}:/var/www/job-seek/
 
-      # 3. Chạy lệnh deploy trên host
       - name: Execute remote deploy
         uses: appleboy/ssh-action@v0.1.7
         with:
@@ -92,10 +88,13 @@ jobs:
           port: ${{ secrets.EC2_SSH_PORT || 22 }}
           script: |
             cd /var/www/job-seek
-
+            sudo chown -R www-data:www-data storage bootstrap/cache
+            sudo find storage bootstrap/cache -type d -exec chmod 775 {} \;
+            sudo find storage bootstrap/cache -type f -exec chmod 664 {} \;
+            sudo -u www-data touch storage/logs/laravel.log
+            sudo chown www-data:www-data storage/logs/laravel.log
+            sudo chmod 664 storage/logs/laravel.log
             composer install --optimize-autoloader
-
-            # Apply migrations & cache
             php artisan migrate --force
             php artisan config:cache
             php artisan route:cache
