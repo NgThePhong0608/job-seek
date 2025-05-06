@@ -71,6 +71,10 @@ jobs:
       # 2. Sync code (ngoại trừ vendor, .env)
       - name: Rsync to EC2
         run: |
+          mkdir -p ~/.ssh
+          echo "$TEST_KEY" > ~/.ssh/id_rsa
+          chmod 600 ~/.ssh/id_rsa
+          ssh-keyscan -H '${{ secrets.EC2_HOST }}'  >> ~/.ssh/known_hosts
           # rsync -az --delete \
           #   --omit-dir-times --no-perms --no-owner --no-group \
           #   -e "ssh -o StrictHostKeyChecking=no -p ${EC2_SSH_PORT:-22}" \
