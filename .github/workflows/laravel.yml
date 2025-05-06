@@ -88,11 +88,11 @@ jobs:
           port: ${{ secrets.EC2_SSH_PORT || 22 }}
           script: |
             cd /var/www/job-seek
-            sudo chown -R www-data:www-data storage bootstrap/cache
+            sudo chown -R ubuntu:ubuntu storage bootstrap/cache
             sudo find storage bootstrap/cache -type d -exec chmod 775 {} \;
             sudo find storage bootstrap/cache -type f -exec chmod 664 {} \;
-            sudo -u www-data touch storage/logs/laravel.log
-            sudo chown www-data:www-data storage/logs/laravel.log
+            sudo -u ubuntu touch storage/logs/laravel.log
+            sudo chown ubuntu:ubuntu storage/logs/laravel.log
             sudo chmod 664 storage/logs/laravel.log
             composer install --optimize-autoloader
             php artisan migrate --force
