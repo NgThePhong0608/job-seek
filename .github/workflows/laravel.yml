@@ -72,6 +72,7 @@ jobs:
           echo "$TEST_KEY" > ~/.ssh/id_rsa
           chmod 600 ~/.ssh/id_rsa
           ssh-keyscan -H '${{ secrets.EC2_HOST }}'  >> ~/.ssh/known_hosts
+          
           # rsync -az --delete \
           #   --omit-dir-times --no-perms --no-owner --no-group \
           #   -e "ssh -o StrictHostKeyChecking=no -p ${EC2_SSH_PORT:-22}" \
@@ -88,6 +89,7 @@ jobs:
           port: ${{ secrets.EC2_SSH_PORT || 22 }}
           script: |
             cd /var/www/job-seek
+            sudo chmod -R 777 storage/
             composer install --optimize-autoloader
             php artisan migrate --force
             php artisan config:cache
