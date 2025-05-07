@@ -90,6 +90,7 @@ jobs:
           script: |
             cd /var/www/job-seek
             sudo chmod -R 777 storage/
+            sudo chmod -R 777 public/
             composer install --optimize-autoloader
             php artisan migrate --force
             php artisan config:cache
