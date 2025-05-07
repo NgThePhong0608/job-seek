@@ -94,34 +94,34 @@ class AccountController extends Controller
                 $imageInfo = getimagesize($sourceImage);
 
                 // Create new image
-                $thumbnail = imagecreatetruecolor(200, 200);
+                $thumbnail = \imagecreatetruecolor(200, 200);
 
                 // Handle transparency for PNG images
                 if ($imageInfo['mime'] === 'image/png') {
-                    imagealphablending($thumbnail, false);
-                    imagesavealpha($thumbnail, true);
-                    $transparent = imagecolorallocatealpha($thumbnail, 255, 255, 255, 127);
-                    imagefilledrectangle($thumbnail, 0, 0, 200, 200, $transparent);
+                    \imagealphablending($thumbnail, false);
+                    \imagesavealpha($thumbnail, true);
+                    $transparent = \imagecolorallocatealpha($thumbnail, 255, 255, 255, 127);
+                    \imagefilledrectangle($thumbnail, 0, 0, 200, 200, $transparent);
                 }
 
                 // Load source image based on type
                 switch ($imageInfo['mime']) {
                     case 'image/jpeg':
-                        $source = imagecreatefromjpeg($sourceImage);
+                        $source = \imagecreatefromjpeg($sourceImage);
                         break;
                     case 'image/png':
-                        $source = imagecreatefrompng($sourceImage);
+                        $source = \imagecreatefrompng($sourceImage);
                         break;
                     case 'image/gif':
-                        $source = imagecreatefromgif($sourceImage);
+                        $source = \imagecreatefromgif($sourceImage);
                         break;
                     default:
                         throw new \Exception('Unsupported image type');
                 }
 
                 // Calculate dimensions to maintain aspect ratio
-                $sourceWidth = imagesx($source);
-                $sourceHeight = imagesy($source);
+                $sourceWidth = \imagesx($source);
+                $sourceHeight = \imagesy($source);
                 $ratio = min(200 / $sourceWidth, 200 / $sourceHeight);
                 $newWidth = $sourceWidth * $ratio;
                 $newHeight = $sourceHeight * $ratio;
@@ -129,7 +129,7 @@ class AccountController extends Controller
                 $y = (200 - $newHeight) / 2;
 
                 // Resize image
-                imagecopyresampled(
+                \imagecopyresampled(
                     $thumbnail,
                     $source,
                     $x,
@@ -153,19 +153,19 @@ class AccountController extends Controller
                 // Save based on original image type
                 switch ($imageInfo['mime']) {
                     case 'image/jpeg':
-                        imagejpeg($thumbnail, $thumbnailPath, 90);
+                        \imagejpeg($thumbnail, $thumbnailPath, 90);
                         break;
                     case 'image/png':
-                        imagepng($thumbnail, $thumbnailPath, 9);
+                        \imagepng($thumbnail, $thumbnailPath, 9);
                         break;
                     case 'image/gif':
-                        imagegif($thumbnail, $thumbnailPath);
+                        \imagegif($thumbnail, $thumbnailPath);
                         break;
                 }
 
                 // Clean up
-                imagedestroy($source);
-                imagedestroy($thumbnail);
+                \imagedestroy($source);
+                \imagedestroy($thumbnail);
 
                 // Update user record
                 $user->update([
