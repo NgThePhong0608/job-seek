@@ -10,10 +10,9 @@ use App\Models\SavedJob;
 use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\File;
 use Illuminate\Support\Facades\Validator;
-use Intervention\Image\ImageManager;
-use Intervention\Image\Drivers\Gd\Driver;
+use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Facades\DB;
 
 class AccountController extends Controller
 {
@@ -62,63 +61,139 @@ class AccountController extends Controller
 
     public function updateProfilePicture(Request $request)
     {
-        $id = Auth::user()->id;
-
         $validator = Validator::make($request->all(), [
-            'image' => 'required|image',
+            'image' => 'required|image|mimes:jpeg,png,jpg,gif|max:2048',
         ]);
 
         if ($validator->passes()) {
-            // Make sure directories exist
-            $publicProfileDir = public_path('profile_picture');
-            $storageProfileDir = public_path('profile_picture/thumbnail');
+            try {
+                DB::beginTransaction();
 
-            // Create directories if they don't exist
-            // if (!File::isDirectory($publicProfileDir)) {
-            //     File::makeDirectory($publicProfileDir, 0755, true);
-            // }
+                $user = Auth::user();
 
-            // if (!File::isDirectory($storageProfileDir)) {
-            //     File::makeDirectory($storageProfileDir, 0755, true);
-            // }
+                // Delete old image if exists
+                if ($user->image) {
+                    Storage::disk('public')->delete([
+                        'profile_picture/' . $user->image,
+                        'profile_picture/thumbnail/' . $user->image
+                    ]);
+                }
 
-            $image = $request->image;
-            $extension = $image->getClientOriginalExtension();
-            $imageFileName = $id . '-' . time() . '.' . $extension;
-            $image->move($publicProfileDir, $imageFileName);
+                // Generate unique filename
+                $imageFileName = $user->id . '-' . time() . '.' . $request->image->extension();
 
-            $sourcePath = $publicProfileDir . '/' . $imageFileName;
+                // Store original image
+                $originalPath = $request->image->storeAs(
+                    'profile_picture',
+                    $imageFileName,
+                    'public'
+                );
 
-            // create new image instance
-            $manager = new ImageManager(Driver::class);
-            $image = $manager->read($sourcePath);
+                // Create thumbnail using native PHP
+                $sourceImage = $request->image->getRealPath();
+                $imageInfo = getimagesize($sourceImage);
 
-            // crop the best fitting 1:1 (200, 200) ratio and resize to 200, 200 pixel
-            $image->cover(200, 200);
-            $image->toPng()->save($storageProfileDir . '/' . $imageFileName);
+                // Create new image
+                $thumbnail = imagecreatetruecolor(200, 200);
 
-            // delete old image and thumbnail
-            if (Auth::user()->image) {
-                File::delete($publicProfileDir . '/' . Auth::user()->image);
-                File::delete($storageProfileDir . '/' . Auth::user()->image);
+                // Handle transparency for PNG images
+                if ($imageInfo['mime'] === 'image/png') {
+                    imagealphablending($thumbnail, false);
+                    imagesavealpha($thumbnail, true);
+                    $transparent = imagecolorallocatealpha($thumbnail, 255, 255, 255, 127);
+                    imagefilledrectangle($thumbnail, 0, 0, 200, 200, $transparent);
+                }
+
+                // Load source image based on type
+                switch ($imageInfo['mime']) {
+                    case 'image/jpeg':
+                        $source = imagecreatefromjpeg($sourceImage);
+                        break;
+                    case 'image/png':
+                        $source = imagecreatefrompng($sourceImage);
+                        break;
+                    case 'image/gif':
+                        $source = imagecreatefromgif($sourceImage);
+                        break;
+                    default:
+                        throw new \Exception('Unsupported image type');
+                }
+
+                // Calculate dimensions to maintain aspect ratio
+                $sourceWidth = imagesx($source);
+                $sourceHeight = imagesy($source);
+                $ratio = min(200 / $sourceWidth, 200 / $sourceHeight);
+                $newWidth = $sourceWidth * $ratio;
+                $newHeight = $sourceHeight * $ratio;
+                $x = (200 - $newWidth) / 2;
+                $y = (200 - $newHeight) / 2;
+
+                // Resize image
+                imagecopyresampled(
+                    $thumbnail,
+                    $source,
+                    $x,
+                    $y,
+                    0,
+                    0,
+                    $newWidth,
+                    $newHeight,
+                    $sourceWidth,
+                    $sourceHeight
+                );
+
+                // Save thumbnail
+                $thumbnailPath = storage_path('app/public/profile_picture/thumbnail/' . $imageFileName);
+
+                // Ensure directory exists
+                if (!file_exists(dirname($thumbnailPath))) {
+                    mkdir(dirname($thumbnailPath), 0755, true);
+                }
+
+                // Save based on original image type
+                switch ($imageInfo['mime']) {
+                    case 'image/jpeg':
+                        imagejpeg($thumbnail, $thumbnailPath, 90);
+                        break;
+                    case 'image/png':
+                        imagepng($thumbnail, $thumbnailPath, 9);
+                        break;
+                    case 'image/gif':
+                        imagegif($thumbnail, $thumbnailPath);
+                        break;
+                }
+
+                // Clean up
+                imagedestroy($source);
+                imagedestroy($thumbnail);
+
+                // Update user record
+                $user->update([
+                    'image' => $imageFileName
+                ]);
+
+                DB::commit();
+
+                session()->flash('success', 'Profile picture updated successfully!');
+
+                return response()->json([
+                    'status' => true,
+                    'errors' => []
+                ]);
+            } catch (\Exception $e) {
+                DB::rollBack();
+
+                return response()->json([
+                    'status' => false,
+                    'errors' => ['message' => 'Failed to update profile picture. Please try again.']
+                ], 500);
             }
-
-            User::where('id', $id)->update([
-                'image' => $imageFileName,
-            ]);
-
-            session()->flash('success', 'Profile picture updated successfully!');
-
-            return response()->json([
-                'status' => true,
-                'errors' => []
-            ]);
-        } else {
-            return response()->json([
-                'status' => false,
-                'errors' => $validator->errors(),
-            ]);
         }
+
+        return response()->json([
+            'status' => false,
+            'errors' => $validator->errors()
+        ]);
     }
 
     public function createJob()
