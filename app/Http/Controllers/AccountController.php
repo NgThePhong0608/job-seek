@@ -15,7 +15,6 @@ use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\DB;
 use Intervention\Image\Facades\Image;
 
-
 class AccountController extends Controller
 {
     public function profile()
