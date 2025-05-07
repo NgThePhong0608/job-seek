@@ -74,13 +74,13 @@ class AccountController extends Controller
             $storageProfileDir = public_path('profile_picture/thumbnail');
 
             // Create directories if they don't exist
-            if (!File::isDirectory($publicProfileDir)) {
-                File::makeDirectory($publicProfileDir, 0755, true);
-            }
+            // if (!File::isDirectory($publicProfileDir)) {
+            //     File::makeDirectory($publicProfileDir, 0755, true);
+            // }
 
-            if (!File::isDirectory($storageProfileDir)) {
-                File::makeDirectory($storageProfileDir, 0755, true);
-            }
+            // if (!File::isDirectory($storageProfileDir)) {
+            //     File::makeDirectory($storageProfileDir, 0755, true);
+            // }
 
             $image = $request->image;
             $extension = $image->getClientOriginalExtension();
