@@ -13,6 +13,7 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\DB;
+use Intervention\Image\Facades\Image;
 
 class AccountController extends Controller
 {
@@ -61,139 +62,55 @@ class AccountController extends Controller
 
     public function updateProfilePicture(Request $request)
     {
-        $validator = Validator::make($request->all(), [
+        $request->validate([
             'image' => 'required|image|mimes:jpeg,png,jpg,gif|max:2048',
         ]);
 
-        if ($validator->passes()) {
-            try {
-                DB::beginTransaction();
+        $user = Auth::user();
 
-                $user = Auth::user();
-
-                // Delete old image if exists
-                if ($user->image) {
-                    Storage::disk('public')->delete([
-                        'profile_picture/' . $user->image,
-                        'profile_picture/thumbnail/' . $user->image
-                    ]);
-                }
-
-                // Generate unique filename
-                $imageFileName = $user->id . '-' . time() . '.' . $request->image->extension();
-
-                // Store original image
-                $originalPath = $request->image->storeAs(
-                    'profile_picture',
-                    $imageFileName,
-                    'public'
-                );
-
-                // Create thumbnail using native PHP
-                $sourceImage = $request->image->getRealPath();
-                $imageInfo = getimagesize($sourceImage);
-
-                // Create new image
-                $thumbnail = imagecreatetruecolor(200, 200);
-
-                // Handle transparency for PNG images
-                if ($imageInfo['mime'] === 'image/png') {
-                    imagealphablending($thumbnail, false);
-                    imagesavealpha($thumbnail, true);
-                    $transparent = imagecolorallocatealpha($thumbnail, 255, 255, 255, 127);
-                    imagefilledrectangle($thumbnail, 0, 0, 200, 200, $transparent);
-                }
-
-                // Load source image based on type
-                switch ($imageInfo['mime']) {
-                    case 'image/jpeg':
-                        $source = imagecreatefromjpeg($sourceImage);
-                        break;
-                    case 'image/png':
-                        $source = imagecreatefrompng($sourceImage);
-                        break;
-                    case 'image/gif':
-                        $source = imagecreatefromgif($sourceImage);
-                        break;
-                    default:
-                        throw new \Exception('Unsupported image type');
-                }
-
-                // Calculate dimensions to maintain aspect ratio
-                $sourceWidth = imagesx($source);
-                $sourceHeight = imagesy($source);
-                $ratio = min(200 / $sourceWidth, 200 / $sourceHeight);
-                $newWidth = $sourceWidth * $ratio;
-                $newHeight = $sourceHeight * $ratio;
-                $x = (200 - $newWidth) / 2;
-                $y = (200 - $newHeight) / 2;
-
-                // Resize image
-                imagecopyresampled(
-                    $thumbnail,
-                    $source,
-                    $x,
-                    $y,
-                    0,
-                    0,
-                    $newWidth,
-                    $newHeight,
-                    $sourceWidth,
-                    $sourceHeight
-                );
-
-                // Save thumbnail
-                $thumbnailPath = storage_path('app/public/profile_picture/thumbnail/' . $imageFileName);
-
-                // Ensure directory exists
-                if (!file_exists(dirname($thumbnailPath))) {
-                    mkdir(dirname($thumbnailPath), 0755, true);
-                }
-
-                // Save based on original image type
-                switch ($imageInfo['mime']) {
-                    case 'image/jpeg':
-                        imagejpeg($thumbnail, $thumbnailPath, 90);
-                        break;
-                    case 'image/png':
-                        imagepng($thumbnail, $thumbnailPath, 9);
-                        break;
-                    case 'image/gif':
-                        imagegif($thumbnail, $thumbnailPath);
-                        break;
-                }
-
-                // Clean up
-                imagedestroy($source);
-                imagedestroy($thumbnail);
-
-                // Update user record
-                $user->update([
-                    'image' => $imageFileName
+        DB::beginTransaction();
+        try {
+            // 1. Xoá ảnh cũ
+            if ($user->image) {
+                Storage::disk('public')->delete([
+                    "profile_picture/{$user->image}",
+                    "profile_picture/thumbnail/{$user->image}",
                 ]);
-
-                DB::commit();
-
-                session()->flash('success', 'Profile picture updated successfully!');
-
-                return response()->json([
-                    'status' => true,
-                    'errors' => []
-                ]);
-            } catch (\Exception $e) {
-                DB::rollBack();
-
-                return response()->json([
-                    'status' => false,
-                    'errors' => ['message' => 'Failed to update profile picture. Please try again.']
-                ], 500);
             }
-        }
 
-        return response()->json([
-            'status' => false,
-            'errors' => $validator->errors()
-        ]);
+            // 2. Tạo tên file duy nhất
+            $ext  = $request->image->extension();
+            $name = "{$user->id}-" . time() . ".{$ext}";
+
+            // 3. Lưu ảnh gốc
+            $pathOriginal = $request->image->storeAs('profile_picture', $name, 'public');
+
+            // 4. Tạo và lưu thumbnail 200×200
+            $thumbnail = Image::make($request->image)
+                ->fit(200, 200, function ($constraint) {
+                    $constraint->upsize();
+                });
+
+            Storage::disk('public')
+                ->put("profile_picture/thumbnail/{$name}", (string) $thumbnail->encode());
+
+            // 5. Cập nhật database
+            $user->update(['image' => $name]);
+
+            DB::commit();
+
+            return response()->json([
+                'status'  => true,
+                'message' => 'Profile picture updated successfully!',
+            ]);
+        } catch (\Throwable $e) {
+            DB::rollBack();
+            \Log::error('Profile picture upload failed: ' . $e->getMessage());
+            return response()->json([
+                'status' => false,
+                'errors' => ['message' => 'Không thể cập nhật ảnh đại diện, vui lòng thử lại.']
+            ], 500);
+        }
     }
 
     public function createJob()
